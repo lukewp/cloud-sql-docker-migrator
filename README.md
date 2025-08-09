@@ -1,5 +1,5 @@
 # cloud-sql-docker-migrator
-Easy Docker-based Google Cloud SQL db migration tool using cloud sql proxy and postgresql-client
+Easy Docker-based Google Cloud SQL postgres db migration tool using cloud sql proxy and postgresql-client
 
 ## Overview:
 This is a Docker-based tool that uses docker-compose.yml to instantiate three containers:

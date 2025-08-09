@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  source-proxy:
+    image: gcr.io/cloudsql-docker/gce-proxy:1.33.7
+    command: [
+      '/cloud_sql_proxy',
+      '-dir=/cloudsql',
+      '-instances=${SOURCE_INSTANCE_CONNECTION_NAME}=tcp:0.0.0.0:5432',
+      '-credential_file=/secrets/service-account.json'
+    ]
+    volumes:
+      - ./secrets:/secrets:ro
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
+    networks:
+      - cloudsql
+
+  target-proxy:
+    image: gcr.io/cloudsql-docker/gce-proxy:1.33.7
+    command: [
+      '/cloud_sql_proxy',
+      '-dir=/cloudsql',
+      '-instances=${TARGET_INSTANCE_CONNECTION_NAME}=tcp:0.0.0.0:5432',
+      '-credential_file=/secrets/service-account.json'
+    ]
+    volumes:
+      - ./secrets:/secrets:ro
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
+    networks:
+      - cloudsql
+
+  postgres-client:
+    image: postgres:16
+    networks:
+      - cloudsql
+    depends_on:
+      - source-proxy
+      - target-proxy
+    entrypoint: ["sleep", "infinity"]
+
+networks:
+  cloudsql:
+    driver: bridge
